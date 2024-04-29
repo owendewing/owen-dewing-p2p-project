@@ -1,1 +1,4 @@
 # owen-dewing-p2p-project
+Usage: My p2p project is a blog application where you can post anything you want! You just have to include your name under the author section, a subject, a body, and you can choose if you want your post to be public or private! Post away!
+
+Proposal: First off, I am going to fly solo for this project, but I will test my app in the Keck Lab or in class with another computer. For my app, I want to create a blog post platform that allows users to share text and images with each other. Instead of my struct being called “recipe”, it will probably be called something like “Blogpost” or “Blog”, with variables called “id”, “name”, “text”, and “image”. If I wanted to make it more complex, I could add variables such as “subject” (giving each post a subject) or “video” (to allow for video sharing). I will adapt a lot of the code from the Recipe example and adapt it to fit my Blog theme.
