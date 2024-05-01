@@ -15,6 +15,8 @@ use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use tokio::{fs, io::AsyncBufReadExt, sync::mpsc};
+use dialoguer::{Input, Password};
+
 
 const STORAGE_FILE_PATH: &str = "./blog.json";
 
@@ -249,7 +251,7 @@ async fn main() {
                 EventType::Input(line) => match line.as_str() {
                     "ls p" => handle_list_peers(&mut swarm).await,
                     cmd if cmd.starts_with("ls r") => handle_list_posts(cmd, &mut swarm).await,
-                    cmd if cmd.starts_with("create r") => handle_create_post(cmd).await,
+                    cmd if cmd.starts_with("create r") => handle_create_post_prompt().await,
                     cmd if cmd.starts_with("publish r") => handle_publish_post(cmd).await,
                     _ => error!("unknown command"),
                 },
@@ -303,22 +305,30 @@ async fn handle_list_posts(cmd: &str, swarm: &mut Swarm<BlogBehavior>) {
     };
 }
 
-async fn handle_create_post(cmd: &str) {
-    if let Some(rest) = cmd.strip_prefix("create r") {
-        let elements: Vec<&str> = rest.split("|").collect();
-        if elements.len() < 3 {
-            info!("too few arguments - Format: author|subject|body");
-        } else {
-            let author = elements.get(0).expect("author is there");
-            let subject = elements.get(1).expect("subject is there");
-            let body = elements.get(2).expect("body is there");
-            if let Err(e) = create_new_post(author, subject, body).await {
-                error!("error creating blogpost: {}", e);
-            };
-        }
-    }
-}
+// async fn handle_create_post(cmd: &str) {
+//     if let Some(rest) = cmd.strip_prefix("create r") {
+//         let elements: Vec<&str> = rest.split("|").collect();
+//         if elements.len() < 3 {
+//             info!("too few arguments - Format: author|subject|body");
+//         } else {
+//             let author = elements.get(0).expect("author is there");
+//             let subject = elements.get(1).expect("subject is there");
+//             let body = elements.get(2).expect("body is there");
+//             if let Err(e) = create_new_post(author, subject, body).await {
+//                 error!("error creating blogpost: {}", e);
+//             };
+//         }
+//     }
+// }
+async fn handle_create_post_prompt() {
+    let author: String = Input::new().with_prompt("Enter author name").interact_text().unwrap();
+    let subject: String = Input::new().with_prompt("Enter subject").interact_text().unwrap();
+    let body: String = Input::new().with_prompt("Enter body").interact_text().unwrap();
 
+    if let Err(e) = create_new_post(&author, &subject, &body).await {
+        error!("error creating blogpost: {}", e);
+    };
+}
 async fn handle_publish_post(cmd: &str) {
     if let Some(rest) = cmd.strip_prefix("publish r") {
         match rest.trim().parse::<usize>() {
